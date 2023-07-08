@@ -1,17 +1,43 @@
 using System.Drawing;
+using System.Drawing.Imaging;
 
 public static class Extensions
 {
     public static void ToGrayScale(this Bitmap bitmap)
     {
-        for (int x = 0, width = bitmap.Width; x < width; x++)
+        Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+        BitmapData bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+        
+        int stride = bitmapData.Stride;
+
+        try
         {
-            for (int y = 0, height = bitmap.Height; y < height; y++)
+            unsafe
             {
-                Color pixel = bitmap.GetPixel(x, y);
-                int average = (pixel.R + pixel.G + pixel.B) / 3;
-                bitmap.SetPixel(x, y, Color.FromArgb(pixel.A, average, average, average));
+                byte* pointer = (byte*)bitmapData.Scan0;
+
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    for (int x = 0; x < bitmap.Width; x++)
+                    {
+                        int offset = y * stride + x * 4;
+
+                        byte blue = pointer[offset];
+                        byte green = pointer[offset + 1];
+                        byte red = pointer[offset + 2];
+
+                        byte gray = (byte)((red + green + blue) / 3);
+
+                        pointer[offset] = gray;
+                        pointer[offset + 1] = gray;
+                        pointer[offset + 2] = gray;
+                    }
+                }
             }
+        }
+        finally
+        {
+            bitmap.UnlockBits(bitmapData);
         }
     }
 }

@@ -19,7 +19,6 @@ StringBuilder stringBuilder = new StringBuilder("");
 Rectangle rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
 BitmapData bitmapData = bitmap.LockBits(rectangle, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
-IntPtr firstPixelData = bitmapData.Scan0;
 int stride = bitmapData.Stride; // number of bytes allocated for each scan line
 int charsLenght = chars.Length;
 
@@ -27,13 +26,13 @@ try
 {
     unsafe
     {
-        byte* pointer = (byte*)firstPixelData;
+        byte* pointer = (byte*)bitmapData.Scan0;
 
         for (int y = 0; y < bitmap.Height; y++)
         {
             for (int x = 0; x < bitmap.Width; x++)
             {
-                int offset = y * stride + x * 4;
+                int offset = y * stride + x * 4; // pixel is represented by four bytes (RGBA)
 
                 int charIndex = pointer[offset] / charsStep;
 
