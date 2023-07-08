@@ -1,33 +1,58 @@
 ﻿using System.Drawing;
-using ImageToASCII;
+using System.Drawing.Imaging;
+using System.Text;
 
 const int maxHeight = 170;
 const float offsetWidth = 2.5f;
 char[] chars = { ' ', '.', ':', '+', '*', 'o', 'x', '8', 'B', 'M', 'W', 'X', '&', '$', '%', '#', '@' };
+int charsStep = Byte.MaxValue / chars.Length;
 
 string imagePath = "C:\\Users\\User\\Desktop\\photo.jpg";
-// string imagePath = "C:\\Users\\User\\Desktop\\50236551 - Copy (2).png";
 
-using FileStream fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read);
-Bitmap bitmap = new Bitmap(fileStream);
+Bitmap bitmap = FileToBitmap(imagePath);
 
 ResizeBitmap(ref bitmap);
-bitmap.RotateFlip(RotateFlipType.Rotate90FlipX);
 bitmap.ToGrayScale();
 
-int step = 255 / chars.Length;
+StringBuilder stringBuilder = new StringBuilder("");
 
-for (int x = 0, width = bitmap.Width; x < width; x++)
+Rectangle rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+BitmapData bitmapData = bitmap.LockBits(rectangle, ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+IntPtr firstPixelData = bitmapData.Scan0;
+int stride = bitmapData.Stride; // number of bytes allocated for each scan line
+int charsLenght = chars.Length;
+
+try
 {
-    for (int y = 0, height = bitmap.Height; y < height; y++)
+    unsafe
     {
-        Color color = bitmap.GetPixel(x, y);
+        byte* pointer = (byte*)firstPixelData;
 
-        Console.Write(chars[color.R / step]);
+        for (int y = 0; y < bitmap.Height; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                int offset = y * stride + x * 4;
+
+                int charIndex = pointer[offset] / charsStep;
+
+                if (charIndex >= charsLenght) charIndex = charsLenght - 1;
+                if (charIndex < 0) charIndex = 0;
+
+                stringBuilder.Append(chars[charIndex]);
+            }
+
+            stringBuilder.AppendLine();
+        }
     }
-
-    Console.WriteLine();
 }
+finally
+{
+    bitmap.UnlockBits(bitmapData);
+}
+
+Console.WriteLine(stringBuilder);
 
 Console.ReadLine();
 
@@ -37,5 +62,11 @@ void ResizeBitmap(ref Bitmap bitmap)
     int newWidth = (int)(maxHeight * aspectRatio * offsetWidth);
 
     if (bitmap.Height > maxHeight || bitmap.Width > newWidth)
-        bitmap = new Bitmap(bitmap, new Size() { Width = newWidth, Height = maxHeight });
+        bitmap = new Bitmap(bitmap, new Size(newWidth, maxHeight));
+}
+
+Bitmap FileToBitmap(string filePath)
+{
+    using FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+    return new Bitmap(fileStream);
 }

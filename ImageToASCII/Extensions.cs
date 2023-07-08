@@ -1,7 +1,5 @@
 using System.Drawing;
 
-namespace ImageToASCII;
-
 public static class Extensions
 {
     public static void ToGrayScale(this Bitmap bitmap)
