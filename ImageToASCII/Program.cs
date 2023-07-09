@@ -4,8 +4,9 @@ using System.Text;
 
 const int maxHeight = 170;
 const float offsetWidth = 2.5f;
-char[] chars = { ' ', '.', ':', '+', '*', 'o', 'x', '8', 'B', 'M', 'W', 'X', '&', '$', '%', '#', '@' };
-int charsStep = Byte.MaxValue / chars.Length;
+char[] chars = { ' ', '.', ':', '+', '*', 'o', 'x', '8', '&', 'B', 'M', 'W', 'X', '$', '%', '#', '@' };
+int charsLenght = chars.Length;
+int charsStep = Byte.MaxValue / charsLenght;
 
 string imagePath = "C:\\Users\\User\\Desktop\\photo.jpg";
 
@@ -20,7 +21,6 @@ Rectangle rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
 BitmapData bitmapData = bitmap.LockBits(rectangle, ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
 int stride = bitmapData.Stride; // number of bytes allocated for each scan line
-int charsLenght = chars.Length;
 
 try
 {
@@ -37,7 +37,6 @@ try
                 int charIndex = pointer[offset] / charsStep;
 
                 if (charIndex >= charsLenght) charIndex = charsLenght - 1;
-                if (charIndex < 0) charIndex = 0;
 
                 stringBuilder.Append(chars[charIndex]);
             }

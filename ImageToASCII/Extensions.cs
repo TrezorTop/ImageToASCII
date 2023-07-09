@@ -6,7 +6,7 @@ public static class Extensions
     public static void ToGrayScale(this Bitmap bitmap)
     {
         Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-        BitmapData bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+        BitmapData bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
         
         int stride = bitmapData.Stride;
 
