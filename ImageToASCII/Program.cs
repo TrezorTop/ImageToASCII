@@ -17,7 +17,8 @@ Utilities.ResizeBitmap(ref bitmap, maxHeight, offsetWidth);
 bitmap.ToGrayScale();
 
 bitmap.ProcessByRef(
-    (scan0, offset) => {
+    (scan0, offset) =>
+    {
         unsafe
         {
             int charIndex = ((byte*)scan0)[offset] / charsStep;
