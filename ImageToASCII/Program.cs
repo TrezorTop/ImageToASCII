@@ -1,70 +1,34 @@
 ﻿using System.Drawing;
-using System.Drawing.Imaging;
 using System.Text;
+using ImageToASCII;
 
 const int maxHeight = 170;
 const float offsetWidth = 2.5f;
 char[] chars = { ' ', '.', ':', '+', '*', 'o', 'x', '8', '&', 'B', 'M', 'W', 'X', '$', '%', '#', '@' };
 int charsLenght = chars.Length;
-int charsStep = Byte.MaxValue / charsLenght;
-
-string imagePath = "C:\\Users\\User\\Desktop\\photo.jpg";
-
-Bitmap bitmap = FileToBitmap(imagePath);
-
-ResizeBitmap(ref bitmap);
-bitmap.ToGrayScale();
+int charsStep = byte.MaxValue / charsLenght;
+const string imagePath = "C:\\Users\\User\\Desktop\\photo.jpg";
 
 StringBuilder stringBuilder = new StringBuilder("");
 
-Rectangle rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-BitmapData bitmapData = bitmap.LockBits(rectangle, ImageLockMode.ReadOnly, bitmap.PixelFormat);
+Bitmap bitmap = Utilities.FileToBitmap(imagePath);
 
-int stride = bitmapData.Stride; // number of bytes allocated for each scan line
+Utilities.ResizeBitmap(ref bitmap, maxHeight, offsetWidth);
+bitmap.ToGrayScale();
 
-try
-{
-    unsafe
-    {
-        byte* pointer = (byte*)bitmapData.Scan0;
-
-        for (int y = 0; y < bitmap.Height; y++)
+bitmap.ProcessByRef(
+    (scan0, offset) => {
+        unsafe
         {
-            for (int x = 0; x < bitmap.Width; x++)
-            {
-                int offset = y * stride + x * 4; // pixel is represented by four bytes (RGBA)
+            int charIndex = ((byte*)scan0)[offset] / charsStep;
 
-                int charIndex = pointer[offset] / charsStep;
+            if (charIndex >= charsLenght) charIndex = charsLenght - 1;
 
-                if (charIndex >= charsLenght) charIndex = charsLenght - 1;
-
-                stringBuilder.Append(chars[charIndex]);
-            }
-
-            stringBuilder.AppendLine();
+            stringBuilder.Append(chars[charIndex]);
         }
-    }
-}
-finally
-{
-    bitmap.UnlockBits(bitmapData);
-}
+    },
+    () => { stringBuilder.AppendLine(); }
+);
 
 Console.WriteLine(stringBuilder);
-
 Console.ReadLine();
-
-void ResizeBitmap(ref Bitmap bitmap)
-{
-    float aspectRatio = (float)bitmap.Width / bitmap.Height;
-    int newWidth = (int)(maxHeight * aspectRatio * offsetWidth);
-
-    if (bitmap.Height > maxHeight || bitmap.Width > newWidth)
-        bitmap = new Bitmap(bitmap, new Size(newWidth, maxHeight));
-}
-
-Bitmap FileToBitmap(string filePath)
-{
-    using FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-    return new Bitmap(fileStream);
-}
