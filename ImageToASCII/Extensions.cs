@@ -4,27 +4,6 @@ using System.Drawing.Imaging;
 
 public static class Extensions
 {
-    public static void ToGrayScale(this Bitmap bitmap)
-    {
-        bitmap.ProcessByRef((scan0, offset) =>
-        {
-            unsafe
-            {
-                byte* pointer = (byte*)scan0;
-
-                byte red = pointer[offset + 2];
-                byte green = pointer[offset + 1];
-                byte blue = pointer[offset];
-
-                byte gray = (byte)((red + green + blue) / 3);
-
-                pointer[offset] = gray;
-                pointer[offset + 1] = gray;
-                pointer[offset + 2] = gray;
-            }
-        });
-    }
-
     public static void ProcessByRef(this Bitmap bitmap, Action<IntPtr, int>? onPixelProcess, Action? onRowProcess = null)
     {
         Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
@@ -55,5 +34,26 @@ public static class Extensions
         {
             bitmap.UnlockBits(bitmapData);
         }
+    }
+
+    public static void ToGrayScale(this Bitmap bitmap)
+    {
+        bitmap.ProcessByRef((scan0, offset) =>
+        {
+            unsafe
+            {
+                byte* pointer = (byte*)scan0;
+
+                byte red = pointer[offset + 2];
+                byte green = pointer[offset + 1];
+                byte blue = pointer[offset];
+
+                byte gray = (byte)((red + green + blue) / 3);
+
+                pointer[offset] = gray;
+                pointer[offset + 1] = gray;
+                pointer[offset + 2] = gray;
+            }
+        });
     }
 }

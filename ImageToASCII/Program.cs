@@ -7,7 +7,7 @@ const float offsetWidth = 2.5f;
 char[] chars = { ' ', '.', ':', '+', '*', 'o', 'x', '8', '&', 'B', 'M', 'W', 'X', '$', '%', '#', '@' };
 int charsLenght = chars.Length;
 int charsStep = byte.MaxValue / charsLenght;
-const string imagePath = "C:\\Users\\User\\Desktop\\photo.jpg";
+const string imagePath = @"C:\Users\User\Desktop\photo.jpg";
 
 StringBuilder stringBuilder = new StringBuilder("");
 
