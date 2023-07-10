@@ -2,7 +2,7 @@
 using System.Text;
 using ImageToASCII;
 
-const int maxHeight = 170;
+const int maxHeight = 180;
 const float offsetWidth = 2.5f;
 char[] chars = { ' ', '.', ':', '+', '*', 'o', 'x', '8', '&', 'B', 'M', 'W', 'X', '$', '%', '#', '@' };
 int charsLenght = chars.Length;
@@ -15,6 +15,8 @@ Bitmap bitmap = Utilities.FileToBitmap(imagePath);
 
 Utilities.ResizeBitmap(ref bitmap, maxHeight, offsetWidth);
 bitmap.ToGrayScale();
+
+Console.SetWindowSize(bitmap.Width, bitmap.Height + 1);
 
 bitmap.ProcessByRef(
     (scan0, offset) =>
@@ -31,5 +33,5 @@ bitmap.ProcessByRef(
     () => { stringBuilder.AppendLine(); }
 );
 
-Console.WriteLine(stringBuilder);
-Console.ReadLine();
+Console.Write(stringBuilder);
+Console.Read();
